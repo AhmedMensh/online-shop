@@ -9,6 +9,7 @@ import 'package:online_shop/screens/edit_product_screen.dart';
 import 'package:online_shop/screens/orders_screen.dart';
 import 'package:online_shop/screens/product_details_screen.dart';
 import 'package:online_shop/screens/products_overview_screen.dart';
+import 'package:online_shop/screens/splash_screen.dart';
 import 'package:online_shop/screens/user_product_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -40,7 +41,15 @@ class MyApp extends StatelessWidget {
           title: 'Flutter Demo',
           theme: ThemeData(
               primarySwatch: Colors.deepPurple, accentColor: Colors.deepOrange),
-          home: auth.isAuth ? ProductsOverViewScreen() : AuthScreen(),
+          home: auth.isAuth
+              ? ProductsOverViewScreen()
+              : FutureBuilder(
+                  future: auth.autoLogin(),
+                  builder: (ctx, authResult) {
+                    return authResult.connectionState == ConnectionState.waiting
+                        ? SplashScreen()
+                        : AuthScreen();
+                  }),
           routes: routes,
         ),
       ),

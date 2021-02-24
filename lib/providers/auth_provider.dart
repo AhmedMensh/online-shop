@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:online_shop/models/http_exception.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
   String _token;
@@ -41,6 +42,14 @@ class AuthProvider with ChangeNotifier {
           .add(Duration(seconds: int.parse(responseDate['expiresIn'])));
       _userId = responseDate['localId'];
       notifyListeners();
+      final prefs = await SharedPreferences.getInstance();
+      final userDate = jsonEncode({
+        'token' : _token,
+        'userID': _userId,
+        'expiryDate' : _expiryDate.toIso8601String()
+      });
+      prefs.setString('userData', userDate);
+
     } catch (error) {
       throw error;
     }
@@ -68,15 +77,42 @@ class AuthProvider with ChangeNotifier {
           .add(Duration(seconds: int.parse(responseDate['expiresIn'])));
       _userId = responseDate['localId'];
       notifyListeners();
+      final prefs = await SharedPreferences.getInstance();
+      final userDate = jsonEncode({
+        'token' : _token,
+        'userID': _userId,
+        'expiryDate' : _expiryDate.toIso8601String()
+      });
+      prefs.setString('userData', userDate);
+
     } catch (error) {
       print(error);
       throw error;
     }
   }
-  void logout(){
+
+  Future<bool> autoLogin() async{
+    final prefs = await SharedPreferences.getInstance();
+    if(!prefs.containsKey('userData')) return false;
+
+    final userDate = jsonDecode(prefs.getString('userData'));
+    _expiryDate = DateTime.parse(userDate['expiryDate']);
+    if(_expiryDate.isBefore(DateTime.now())) return false;
+
+    _userId = userDate['userId'];
+    _token = userDate['token'];
+    notifyListeners();
+    return true;
+
+  }
+  void logout() async{
     _userId = null;
     _expiryDate = null;
     _token = null;
+    final prefs = await SharedPreferences.getInstance();
+    if(prefs.containsKey('userData')) {
+      prefs.remove('userData');
+    }
     notifyListeners();
   }
 }
