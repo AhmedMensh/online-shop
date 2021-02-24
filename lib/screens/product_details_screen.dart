@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 class ProductDetailsScreen extends StatelessWidget {
   static const ROUTE_NAME = 'product-details';
 
+
   @override
   Widget build(BuildContext context) {
     var productId = ModalRoute.of(context).settings.arguments as String;
@@ -15,42 +16,48 @@ class ProductDetailsScreen extends StatelessWidget {
         .getProduct(productId);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(product.title),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              height: 300,
+        body: CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 300,
+          pinned: true,
+          flexibleSpace: FlexibleSpaceBar(
+            title: Text(product.title),
+            background: Hero(
+              tag: product.id,
               child: Image.network(
                 product.imageUrl,
                 fit: BoxFit.cover,
               ),
             ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              '\$${product.price}',
-              style: TextStyle(color: Colors.grey, fontSize: 18),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              width: double.infinity,
-              child: Text(
-                product.description,
-                textAlign: TextAlign.center,
-                softWrap: true,
-              ),
-            )
-          ],
+          ),
         ),
-      ),
-    );
+        SliverList(
+            delegate: SliverChildListDelegate([
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            '\$${product.price}',
+            style: TextStyle(color: Colors.black, fontSize: 18),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            width: double.infinity,
+            child: Text(
+              '${product.description} ${product.description} ${product.description}${product.description}${product.description}${product.description}${product.description}${product.description}${product.description}${product.description} ${product.description} ${product.description} ${product.description} ${product.description}',
+              textAlign: TextAlign.center,
+              softWrap: true,
+              style: TextStyle(color: Colors.black, fontSize: 22),
+            ),
+          ),
+
+        ]))
+      ],
+    ));
   }
 }
